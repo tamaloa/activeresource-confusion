@@ -1,6 +1,6 @@
 The Value class saves sucessfully in both activeresource versions if the value attribute is not set.
 If the value attribute is set only activeresource 3.2.17 saves sucessfully.
-This is due to the class set as root for the POST hash. Enabling this feature in activeresource 4.0.0 saves sucessfully again.
+This is due to the class set as root for the POST hash. Enabling this feature in activeresource 4.0.0 saves sucessfully again (see commented out line in value.rb). Bitten by Rails magic again :)
 
 
 gem install rails -v 4.0.3
