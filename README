@@ -1,0 +1,46 @@
+The Value class saves sucessfully in both activeresource versions if the value attribute is not set.
+If the value attribute is set only activeresource 3.2.17 saves sucessfully.
+This is due to the class set as root for the POST hash. Enabling this feature in activeresource 4.0.0 saves sucessfully again.
+
+
+gem install rails -v 4.0.3
+rails new REST-service-rails-4.0.3
+cd REST-service-rails-4.0.3
+rails g scaffold Value name:string value:float
+rake db:migrate
+# protect_from_forgery with: :null_session in app/controllers/application_controller.rb
+rails server #rails server running on localhost:3000
+
+cd activeresource-3.2.17
+ruby run.rb
+
+"Sucessfully saved Value: #<Value:0x00000002bd49d8 @attributes={\"name\"=>\"Test Value\", \"value\"=>1.42, \"id\"=>6, \"created_at\"=>\"2014-03-10T13:42:16.490Z\", \"updated_at\"=>\"2014-03-10T13:42:16.490Z\"}, @prefix_options={}, @persisted=true, @remote_errors=nil, @validation_context=nil, @errors=#<ActiveResource::Errors:0x00000002bdbcd8 @base=#<Value:0x00000002bd49d8 ...>, @messages={}>>"
+
+#REST-service log:
+Started POST "/values.json" for 127.0.0.1 at 2014-03-10 14:44:37 +0100
+Processing by ValuesController#create as JSON
+  Parameters: {"value"=>{"name"=>"Test Value", "value"=>1.42}}
+Can't verify CSRF token authenticity
+   (0.1ms)  begin transaction
+  SQL (0.3ms)  INSERT INTO "values" ("created_at", "name", "updated_at", "value") VALUES (?, ?, ?, ?)  [["created_at", Mon, 10 Mar 2014 13:44:37 UTC +00:00], ["name", "Test Value"], ["updated_at", Mon, 10 Mar 2014 13:44:37 UTC +00:00], ["value", 1.42]]
+   (8.0ms)  commit transaction
+  Rendered values/show.json.jbuilder (0.2ms)
+Completed 201 Created in 12ms (Views: 1.9ms | ActiveRecord: 8.3ms)
+
+
+cd activeresource-4.0.3
+ruby run.rb
+
+activeresource-4.0.0/lib/active_resource/connection.rb:156:in `handle_response': Failed.  Response code = 500.  Response message = Internal Server Error . (ActiveResource::ServerError)
+
+#REST-service log:
+Started POST "/values.json" for 127.0.0.1 at 2014-03-10 14:42:40 +0100
+Processing by ValuesController#create as JSON
+  Parameters: {"name"=>"Test Value", "value"=>1.42}
+Can't verify CSRF token authenticity
+Completed 500 Internal Server Error in 1ms
+
+NoMethodError (undefined method `permit' for 1.42:Float):
+  app/controllers/values_controller.rb:72:in `value_params'
+  app/controllers/values_controller.rb:27:in `create'
+
